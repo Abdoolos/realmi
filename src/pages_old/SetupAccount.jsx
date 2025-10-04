@@ -77,7 +77,7 @@ export default function SetupAccount() {
     if (hasCheckedUser.current) return;
     
     checkUserSetup();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleSave = async () => {
     if (!formData.phone || !formData.preferred_currency) {

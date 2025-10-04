@@ -7,6 +7,8 @@ class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
     this.state = { hasError: false, error: null, errorInfo: null };
+    this.handleReload = this.handleReload.bind(this);
+    this.handleReset = this.handleReset.bind(this);
   }
 
   static getDerivedStateFromError(error) {
@@ -27,7 +29,7 @@ class ErrorBoundary extends React.Component {
     }
   }
 
-  reportError = (error, errorInfo) => {
+  reportError(error, errorInfo) {
     try {
       // يمكن إرسال التقرير إلى خدمة مراقبة الأخطاء
       console.error('Production Error Report:', {
@@ -41,18 +43,18 @@ class ErrorBoundary extends React.Component {
     } catch (reportingError) {
       console.error('Failed to report error:', reportingError);
     }
-  };
+  }
 
-  handleReload = () => {
+  handleReload() {
     this.setState({ hasError: false, error: null, errorInfo: null });
     if (typeof window !== 'undefined') {
       window.location.reload();
     }
-  };
+  }
 
-  handleReset = () => {
+  handleReset() {
     this.setState({ hasError: false, error: null, errorInfo: null });
-  };
+  }
 
   render() {
     if (this.state.hasError) {
