@@ -1,0 +1,444 @@
+### تطبيق الميزانية الذكية - اختبارات API
+### ملف اختبارات REST Client لـ VS Code
+### استخدام: Install REST Client extension ثم اضغط "Send Request"
+
+@baseUrl = http://localhost:3000
+@userId = user_123
+@familyId = family_123
+@categoryId = cat_001
+@expenseId = expense_123
+@budgetId = budget_123
+@billId = bill_123
+
+### ========== المصاريف (Expenses) ==========
+
+### جلب المصاريف
+GET {{baseUrl}}/api/expenses?page=1&limit=10
+Content-Type: application/json
+
+###
+
+### إضافة مصروف جديد
+POST {{baseUrl}}/api/expenses
+Content-Type: application/json
+
+{
+  "amount": 250.50,
+  "description": "تسوق بقالة",
+  "categoryId": "{{categoryId}}",
+  "subcategoryId": "subcat_001",
+  "date": "2024-01-15T10:30:00.000Z",
+  "notes": "تسوق أسبوعي من السوبر ماركت"
+}
+
+###
+
+### تحديث مصروف
+PUT {{baseUrl}}/api/expenses/{{expenseId}}
+Content-Type: application/json
+
+{
+  "amount": 275.00,
+  "description": "تسوق بقالة محدث",
+  "notes": "تسوق أسبوعي محدث"
+}
+
+###
+
+### حذف مصروف
+DELETE {{baseUrl}}/api/expenses/{{expenseId}}
+
+###
+
+### ========== الدخل (Incomes) ==========
+
+### جلب الدخل
+GET {{baseUrl}}/api/incomes?year=2024&month=1
+Content-Type: application/json
+
+###
+
+### إضافة دخل جديد
+POST {{baseUrl}}/api/incomes
+Content-Type: application/json
+
+{
+  "amount": 5000.00,
+  "type": "salary",
+  "description": "راتب شهر يناير",
+  "date": "2024-01-01T00:00:00.000Z"
+}
+
+###
+
+### ========== الفئات (Categories) ==========
+
+### جلب الفئات
+GET {{baseUrl}}/api/categories
+Content-Type: application/json
+
+###
+
+### إضافة فئة جديدة
+POST {{baseUrl}}/api/categories
+Content-Type: application/json
+
+{
+  "name": "مواصلات",
+  "icon": "car",
+  "color": "#3B82F6"
+}
+
+###
+
+### جلب الفئات الفرعية
+GET {{baseUrl}}/api/subcategories?categoryId={{categoryId}}
+Content-Type: application/json
+
+###
+
+### إضافة فئة فرعية
+POST {{baseUrl}}/api/subcategories
+Content-Type: application/json
+
+{
+  "name": "وقود",
+  "categoryId": "{{categoryId}}"
+}
+
+###
+
+### ========== الميزانيات (Budgets) ==========
+
+### جلب الميزانيات
+GET {{baseUrl}}/api/budgets
+Content-Type: application/json
+
+###
+
+### إنشاء ميزانية جديدة
+POST {{baseUrl}}/api/budgets
+Content-Type: application/json
+
+{
+  "name": "ميزانية يناير 2024",
+  "totalLimit": 3000.00,
+  "startDate": "2024-01-01T00:00:00.000Z",
+  "endDate": "2024-01-31T23:59:59.999Z",
+  "categoryBudgets": [
+    {
+      "categoryId": "cat_001",
+      "limit": 800.00
+    },
+    {
+      "categoryId": "cat_002",
+      "limit": 500.00
+    }
+  ]
+}
+
+###
+
+### ملخص الميزانية
+GET {{baseUrl}}/api/budgets/{{budgetId}}/summary
+Content-Type: application/json
+
+###
+
+### ========== التقارير (Reports) ==========
+
+### تقرير شهري
+GET {{baseUrl}}/api/reports/monthly?y=2024&m=1&includeNotes=1&hideTables=0
+Content-Type: application/json
+
+###
+
+### تقرير سنوي
+GET {{baseUrl}}/api/reports/yearly?y=2024
+Content-Type: application/json
+
+###
+
+### تقرير عائلي
+GET {{baseUrl}}/api/reports/family?familyId={{familyId}}&y=2024&m=1
+Content-Type: application/json
+
+###
+
+### تقرير حسب فئة
+GET {{baseUrl}}/api/reports/category?categoryId={{categoryId}}&y=2024&m=1
+Content-Type: application/json
+
+###
+
+### تقرير حسب عضو
+GET {{baseUrl}}/api/reports/member?memberId={{userId}}&y=2024&m=1
+Content-Type: application/json
+
+###
+
+### تقرير PDF شهري
+GET {{baseUrl}}/api/reports/monthly/pdf?y=2024&m=1&includeNotes=1&hideCharts=0
+Accept: application/pdf
+
+###
+
+### ========== المناسبات (Events) ==========
+
+### جلب المناسبات
+GET {{baseUrl}}/api/events?year=2024
+Content-Type: application/json
+
+###
+
+### إضافة مناسبة جديدة
+POST {{baseUrl}}/api/events
+Content-Type: application/json
+
+{
+  "name": "رمضان 2024",
+  "type": "ramadan",
+  "startDate": "2024-03-10T00:00:00.000Z",
+  "endDate": "2024-04-09T23:59:59.999Z",
+  "description": "شهر رمضان المبارك لعام 2024"
+}
+
+###
+
+### ========== العائلة (Family) ==========
+
+### إنشاء عائلة جديدة
+POST {{baseUrl}}/api/family/create
+Content-Type: application/json
+
+{
+  "name": "عائلة أحمد"
+}
+
+###
+
+### الانضمام لعائلة
+POST {{baseUrl}}/api/family/join
+Content-Type: application/json
+
+{
+  "inviteCode": "FAMILY123"
+}
+
+###
+
+### ملخص العائلة
+GET {{baseUrl}}/api/family/summary?year=2024&month=1
+Content-Type: application/json
+
+###
+
+### ========== تقسيم الفواتير (Split Bills) ==========
+
+### تقسيم فاتورة
+POST {{baseUrl}}/api/bills/split
+Content-Type: application/json
+
+{
+  "title": "عشاء في المطعم",
+  "totalAmount": 120.00,
+  "date": "2024-01-15T19:30:00.000Z",
+  "participants": [
+    {
+      "userId": "user_001",
+      "shareAmount": 60.00
+    },
+    {
+      "userId": "user_002",
+      "shareAmount": 60.00
+    }
+  ],
+  "saveAsExpenses": true
+}
+
+###
+
+### حالة الفاتورة
+GET {{baseUrl}}/api/bills/{{billId}}/status
+Content-Type: application/json
+
+###
+
+### ========== التنبؤ (Forecast) ==========
+
+### تشغيل التنبؤ
+POST {{baseUrl}}/api/forecast/run?y=2024&m=2
+
+###
+
+### جلب التنبؤات
+GET {{baseUrl}}/api/forecast?y=2024&m=2
+Content-Type: application/json
+
+###
+
+### ========== النصائح (Advice) ==========
+
+### نصائح الشهر
+GET {{baseUrl}}/api/advice/monthly?y=2024&m=1
+Content-Type: application/json
+
+###
+
+### آخر نصيحة يومية
+GET {{baseUrl}}/api/advice/daily-latest
+Content-Type: application/json
+
+###
+
+### ========== المساعد المالي (Assistant) ==========
+
+### سؤال المساعد
+POST {{baseUrl}}/api/assistant/ask
+Content-Type: application/json
+
+{
+  "question": "كيف يمكنني توفير المزيد من المال هذا الشهر؟"
+}
+
+###
+
+### ========== كاميرا الفواتير (OCR) ==========
+
+### معالجة فاتورة (تحتاج لرفع ملف)
+# POST {{baseUrl}}/api/ocr/receipt
+# Content-Type: multipart/form-data
+# 
+# --boundary
+# Content-Disposition: form-data; name="file"; filename="receipt.jpg"
+# Content-Type: image/jpeg
+# 
+# < ./test-files/receipt.jpg
+# --boundary--
+
+###
+
+### ========== Stripe ==========
+
+### إنشاء جلسة دفع
+POST {{baseUrl}}/api/stripe/checkout
+Content-Type: application/json
+
+{
+  "plan": "basic"
+}
+
+###
+
+### رابط إدارة الاشتراك
+POST {{baseUrl}}/api/stripe/portal
+Content-Type: application/json
+
+###
+
+### Webhook (محاكاة)
+POST {{baseUrl}}/api/stripe/webhook
+Content-Type: application/json
+stripe-signature: t=timestamp,v1=signature
+
+{
+  "id": "evt_test_webhook",
+  "object": "event",
+  "type": "checkout.session.completed",
+  "data": {
+    "object": {
+      "id": "cs_test_123",
+      "customer": "cus_test_123",
+      "subscription": "sub_test_123"
+    }
+  }
+}
+
+###
+
+### ========== العروض (Deals) - Placeholder ==========
+
+### البحث عن عروض
+GET {{baseUrl}}/api/deals/search?region=riyadh&q=electronics
+Content-Type: application/json
+
+###
+
+### ========== اختبارات الأخطاء ==========
+
+### اختبار خطأ - مصروف بدون مبلغ
+POST {{baseUrl}}/api/expenses
+Content-Type: application/json
+
+{
+  "description": "مصروف بدون مبلغ",
+  "categoryId": "cat_001"
+}
+
+###
+
+### اختبار خطأ - فئة غير موجودة
+GET {{baseUrl}}/api/expenses?categoryId=non_existent_category
+
+###
+
+### اختبار خطأ - تاريخ غير صحيح
+GET {{baseUrl}}/api/reports/monthly?y=invalid&m=1
+
+###
+
+### ========== اختبارات الحد الأقصى ==========
+
+### اختبار تجاوز الميزانية (110%)
+POST {{baseUrl}}/api/expenses
+Content-Type: application/json
+
+{
+  "amount": 1000.00,
+  "description": "مصروف كبير لاختبار التجاوز",
+  "categoryId": "{{categoryId}}",
+  "date": "2024-01-15T10:30:00.000Z"
+}
+
+###
+
+### ========== اختبارات التقويم الهجري ==========
+
+### تقرير شهري بالتقويم الهجري
+GET {{baseUrl}}/api/reports/monthly?y=1445&m=7&calendar=hijri
+Content-Type: application/json
+
+###
+
+### ========== اختبارات الأداء ==========
+
+### جلب مصاريف كثيرة
+GET {{baseUrl}}/api/expenses?limit=100
+Content-Type: application/json
+
+###
+
+### ========== ملاحظات الاختبار ==========
+# 
+# هذا الملف يحتوي على جميع نقاط API للتطبيق
+# استخدم متغيرات البيئة لتخصيص القيم
+# 
+# المتغيرات المطلوبة:
+# - baseUrl: عنوان الخادم (افتراضي: http://localhost:3000)
+# - userId: معرف المستخدم للاختبار
+# - familyId: معرف العائلة للاختبار
+# - categoryId: معرف الفئة للاختبار
+# - expenseId: معرف المصروف للاختبار
+# - budgetId: معرف الميزانية للاختبار
+# - billId: معرف الفاتورة للاختبار
+#
+# نقاط اختبار مهمة:
+# 1. تنبيه تجاوز الميزانية (110%)
+# 2. إنشاء PDF التقارير
+# 3. OCR استخراج بيانات الفواتير
+# 4. تقسيم الفواتير
+# 5. ملخص العائلة
+# 6. التنبؤ المالي
+# 7. النصائح اليومية المجدولة
+# 8. تدفق Stripe (Checkout/Portal/Webhook)
+#

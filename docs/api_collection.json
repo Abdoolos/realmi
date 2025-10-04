@@ -1,0 +1,750 @@
+{
+  "info": {
+    "name": "تطبيق الميزانية الذكية - API Collection",
+    "description": "مجموعة شاملة لجميع نقاط API في تطبيق الميزانية الذكية",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "المصاريف (Expenses)",
+      "item": [
+        {
+          "name": "جلب المصاريف",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/expenses?page=1&limit=10&categoryId=&startDate=&endDate=",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "expenses"],
+              "query": [
+                {"key": "page", "value": "1"},
+                {"key": "limit", "value": "10"},
+                {"key": "categoryId", "value": ""},
+                {"key": "startDate", "value": ""},
+                {"key": "endDate", "value": ""}
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "نجح الطلب",
+              "originalRequest": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/expenses"
+              },
+              "status": "OK",
+              "code": 200,
+              "body": {
+                "ok": true,
+                "data": {
+                  "expenses": [],
+                  "pagination": {
+                    "total": 0,
+                    "page": 1,
+                    "limit": 10,
+                    "totalPages": 0
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "إضافة مصروف جديد",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 250.50,\n  \"description\": \"تسوق بقالة\",\n  \"categoryId\": \"cat_001\",\n  \"subcategoryId\": \"subcat_001\",\n  \"date\": \"2024-01-15T10:30:00.000Z\",\n  \"notes\": \"تسوق أسبوعي من السوبر ماركت\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/expenses",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "expenses"]
+            }
+          }
+        },
+        {
+          "name": "تحديث مصروف",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 275.00,\n  \"description\": \"تسوق بقالة محدث\",\n  \"notes\": \"تسوق أسبوعي محدث\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/expenses/{{expenseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "expenses", "{{expenseId}}"]
+            }
+          }
+        },
+        {
+          "name": "حذف مصروف",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/expenses/{{expenseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "expenses", "{{expenseId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "الدخل (Incomes)",
+      "item": [
+        {
+          "name": "جلب الدخل",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/incomes?year=2024&month=1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "incomes"],
+              "query": [
+                {"key": "year", "value": "2024"},
+                {"key": "month", "value": "1"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "إضافة دخل جديد",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 5000.00,\n  \"type\": \"salary\",\n  \"description\": \"راتب شهر يناير\",\n  \"date\": \"2024-01-01T00:00:00.000Z\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/incomes",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "incomes"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "الفئات (Categories)",
+      "item": [
+        {
+          "name": "جلب الفئات",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "categories"]
+            }
+          }
+        },
+        {
+          "name": "إضافة فئة جديدة",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"مواصلات\",\n  \"icon\": \"car\",\n  \"color\": \"#3B82F6\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "categories"]
+            }
+          }
+        },
+        {
+          "name": "جلب الفئات الفرعية",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/subcategories?categoryId={{categoryId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "subcategories"],
+              "query": [
+                {"key": "categoryId", "value": "{{categoryId}}"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "إضافة فئة فرعية",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"وقود\",\n  \"categoryId\": \"{{categoryId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/subcategories",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "subcategories"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "الميزانيات (Budgets)",
+      "item": [
+        {
+          "name": "جلب الميزانيات",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/budgets",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "budgets"]
+            }
+          }
+        },
+        {
+          "name": "إنشاء ميزانية جديدة",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"ميزانية يناير 2024\",\n  \"totalLimit\": 3000.00,\n  \"startDate\": \"2024-01-01T00:00:00.000Z\",\n  \"endDate\": \"2024-01-31T23:59:59.999Z\",\n  \"categoryBudgets\": [\n    {\n      \"categoryId\": \"cat_001\",\n      \"limit\": 800.00\n    },\n    {\n      \"categoryId\": \"cat_002\",\n      \"limit\": 500.00\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/budgets",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "budgets"]
+            }
+          }
+        },
+        {
+          "name": "ملخص الميزانية",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/budgets/{{budgetId}}/summary",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "budgets", "{{budgetId}}", "summary"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "التقارير (Reports)",
+      "item": [
+        {
+          "name": "تقرير شهري",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/reports/monthly?y=2024&m=1&includeNotes=1&hideTables=0",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reports", "monthly"],
+              "query": [
+                {"key": "y", "value": "2024"},
+                {"key": "m", "value": "1"},
+                {"key": "includeNotes", "value": "1"},
+                {"key": "hideTables", "value": "0"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "تقرير سنوي",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/reports/yearly?y=2024",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reports", "yearly"],
+              "query": [
+                {"key": "y", "value": "2024"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "تقرير عائلي",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/reports/family?familyId={{familyId}}&y=2024&m=1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reports", "family"],
+              "query": [
+                {"key": "familyId", "value": "{{familyId}}"},
+                {"key": "y", "value": "2024"},
+                {"key": "m", "value": "1"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "تقرير PDF شهري",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/reports/monthly/pdf?y=2024&m=1&includeNotes=1&hideCharts=0",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reports", "monthly", "pdf"],
+              "query": [
+                {"key": "y", "value": "2024"},
+                {"key": "m", "value": "1"},
+                {"key": "includeNotes", "value": "1"},
+                {"key": "hideCharts", "value": "0"}
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "المناسبات (Events)",
+      "item": [
+        {
+          "name": "جلب المناسبات",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/events?year=2024",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "events"],
+              "query": [
+                {"key": "year", "value": "2024"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "إضافة مناسبة جديدة",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"رمضان 2024\",\n  \"type\": \"ramadan\",\n  \"startDate\": \"2024-03-10T00:00:00.000Z\",\n  \"endDate\": \"2024-04-09T23:59:59.999Z\",\n  \"description\": \"شهر رمضان المبارك لعام 2024\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/events",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "events"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "العائلة (Family)",
+      "item": [
+        {
+          "name": "إنشاء عائلة جديدة",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"عائلة أحمد\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/family/create",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "family", "create"]
+            }
+          }
+        },
+        {
+          "name": "الانضمام لعائلة",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"inviteCode\": \"FAMILY123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/family/join",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "family", "join"]
+            }
+          }
+        },
+        {
+          "name": "ملخص العائلة",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/family/summary?year=2024&month=1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "family", "summary"],
+              "query": [
+                {"key": "year", "value": "2024"},
+                {"key": "month", "value": "1"}
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "تقسيم الفواتير (Split Bills)",
+      "item": [
+        {
+          "name": "تقسيم فاتورة",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"عشاء في المطعم\",\n  \"totalAmount\": 120.00,\n  \"date\": \"2024-01-15T19:30:00.000Z\",\n  \"participants\": [\n    {\n      \"userId\": \"user_001\",\n      \"shareAmount\": 60.00\n    },\n    {\n      \"userId\": \"user_002\",\n      \"shareAmount\": 60.00\n    }\n  ],\n  \"saveAsExpenses\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/bills/split",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "bills", "split"]
+            }
+          }
+        },
+        {
+          "name": "حالة الفاتورة",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/bills/{{billId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "bills", "{{billId}}", "status"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "التنبؤ (Forecast)",
+      "item": [
+        {
+          "name": "تشغيل التنبؤ",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/forecast/run?y=2024&m=2",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "forecast", "run"],
+              "query": [
+                {"key": "y", "value": "2024"},
+                {"key": "m", "value": "2"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "جلب التنبؤات",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/forecast?y=2024&m=2",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "forecast"],
+              "query": [
+                {"key": "y", "value": "2024"},
+                {"key": "m", "value": "2"}
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "النصائح (Advice)",
+      "item": [
+        {
+          "name": "نصائح الشهر",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/advice/monthly?y=2024&m=1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "advice", "monthly"],
+              "query": [
+                {"key": "y", "value": "2024"},
+                {"key": "m", "value": "1"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "آخر نصيحة يومية",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/advice/daily-latest",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "advice", "daily-latest"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "المساعد المالي (Assistant)",
+      "item": [
+        {
+          "name": "سؤال المساعد",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question\": \"كيف يمكنني توفير المزيد من المال هذا الشهر؟\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/assistant/ask",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "assistant", "ask"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "كاميرا الفواتير (OCR)",
+      "item": [
+        {
+          "name": "معالجة فاتورة",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "multipart/form-data"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "/path/to/receipt.jpg"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/ocr/receipt",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ocr", "receipt"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Stripe",
+      "item": [
+        {
+          "name": "إنشاء جلسة دفع",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"plan\": \"basic\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/stripe/checkout",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "stripe", "checkout"]
+            }
+          }
+        },
+        {
+          "name": "رابط إدارة الاشتراك",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/stripe/portal",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "stripe", "portal"]
+            }
+          }
+        },
+        {
+          "name": "Webhook",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "stripe-signature",
+                "value": "{{stripe_signature}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/stripe/webhook",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "stripe", "webhook"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "العروض (Deals) - Placeholder",
+      "item": [
+        {
+          "name": "البحث عن عروض",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/deals/search?region=riyadh&q=electronics",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "deals", "search"],
+              "query": [
+                {"key": "region", "value": "riyadh"},
+                {"key": "q", "value": "electronics"}
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "expenseId",
+      "value": "expense_123",
+      "type": "string"
+    },
+    {
+      "key": "categoryId",
+      "value": "cat_001",
+      "type": "string"
+    },
+    {
+      "key": "budgetId",
+      "value": "budget_123",
+      "type": "string"
+    },
+    {
+      "key": "familyId",
+      "value": "family_123",
+      "type": "string"
+    },
+    {
+      "key": "billId",
+      "value": "bill_123",
+      "type": "string"
+    },
+    {
+      "key": "stripe_signature",
+      "value": "t=timestamp,v1=signature",
+      "type": "string"
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Add authentication headers if needed",
+          "// pm.request.headers.add({key: 'Authorization', value: 'Bearer ' + pm.environment.get('token')});"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "pm.test('Status code is 200', function () {",
+          "    pm.response.to.have.status(200);",
+          "});",
+          "",
+          "pm.test('Response has ok field', function () {",
+          "    var jsonData = pm.response.json();",
+          "    pm.expect(jsonData).to.have.property('ok');",
+          "});"
+        ]
+      }
+    }
+  ]
+}

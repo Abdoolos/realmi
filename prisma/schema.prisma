@@ -1,0 +1,333 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  currency      String    @default("SAR")
+  timezone      String    @default("Asia/Riyadh")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  accounts         Account[]
+  sessions         Session[]
+  ownedFamilies    Family[]        @relation("FamilyOwner")
+  familyMembership FamilyMember[]
+  incomes          Income[]
+  expenses         Expense[]
+  budgets          Budget[]
+  paidBills        Bill[]          @relation("BillPayer")
+  billParticipants BillParticipant[]
+  subscription     Subscription?
+  advices          Advice[]
+  forecasts        Forecast[]
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+model Family {
+  id         String   @id @default(cuid())
+  name       String
+  inviteCode String   @unique
+  ownerId    String
+  createdAt  DateTime @default(now())
+
+  // Relations
+  owner      User           @relation("FamilyOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  members    FamilyMember[]
+  categories Category[]
+  incomes    Income[]
+  expenses   Expense[]
+  budgets    Budget[]
+  events     Event[]
+  bills      Bill[]
+  advices    Advice[]
+  forecasts  Forecast[]
+
+  @@map("families")
+}
+
+model FamilyMember {
+  id       String   @id @default(cuid())
+  familyId String
+  userId   String
+  role     String   @default("member") // owner, admin, member
+  joinedAt DateTime @default(now())
+
+  // Relations
+  family Family @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([familyId, userId])
+  @@map("family_members")
+}
+
+model Category {
+  id        String  @id @default(cuid())
+  name      String
+  icon      String
+  color     String
+  isDefault Boolean @default(false)
+  familyId  String?
+
+  // Relations
+  family         Family?          @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  subcategories  Subcategory[]
+  expenses       Expense[]
+  categoryBudgets CategoryBudget[]
+
+  @@map("categories")
+}
+
+model Subcategory {
+  id         String @id @default(cuid())
+  name       String
+  categoryId String
+
+  // Relations
+  category Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  expenses Expense[]
+
+  @@map("subcategories")
+}
+
+model Income {
+  id          String   @id @default(cuid())
+  amount      Decimal
+  type        String   // salary, freelance, investment, other
+  description String
+  date        DateTime
+  userId      String
+  familyId    String?
+
+  // Relations
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  family Family? @relation(fields: [familyId], references: [id], onDelete: SetNull)
+
+  @@map("incomes")
+}
+
+model Expense {
+  id            String   @id @default(cuid())
+  amount        Decimal
+  description   String
+  date          DateTime
+  notes         String?
+  categoryId    String
+  subcategoryId String?
+  userId        String
+  familyId      String?
+  billId        String?
+
+  // Relations
+  category    Category     @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  subcategory Subcategory? @relation(fields: [subcategoryId], references: [id], onDelete: SetNull)
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  family      Family?      @relation(fields: [familyId], references: [id], onDelete: SetNull)
+  bill        Bill?        @relation(fields: [billId], references: [id], onDelete: SetNull)
+
+  @@map("expenses")
+}
+
+model Budget {
+  id          String   @id @default(cuid())
+  name        String
+  totalLimit  Decimal
+  startDate   DateTime
+  endDate     DateTime
+  userId      String
+  familyId    String?
+  eventId     String?
+
+  // Relations
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  family          Family?          @relation(fields: [familyId], references: [id], onDelete: SetNull)
+  event           Event?           @relation(fields: [eventId], references: [id], onDelete: SetNull)
+  categoryBudgets CategoryBudget[]
+
+  @@map("budgets")
+}
+
+model CategoryBudget {
+  id         String  @id @default(cuid())
+  budgetId   String
+  categoryId String
+  limit      Decimal
+  spent      Decimal @default(0)
+
+  // Relations
+  budget   Budget   @relation(fields: [budgetId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([budgetId, categoryId])
+  @@map("category_budgets")
+}
+
+model Event {
+  id          String   @id @default(cuid())
+  name        String
+  type        String   // ramadan, eid, school, custom
+  startDate   DateTime
+  endDate     DateTime
+  description String?
+  familyId    String?
+
+  // Relations
+  family  Family?  @relation(fields: [familyId], references: [id], onDelete: SetNull)
+  budgets Budget[]
+
+  @@map("events")
+}
+
+model Bill {
+  id          String   @id @default(cuid())
+  title       String
+  totalAmount Decimal
+  date        DateTime
+  paidById    String
+  familyId    String?
+  isSettled   Boolean  @default(false)
+
+  // Relations
+  paidBy       User              @relation("BillPayer", fields: [paidById], references: [id], onDelete: Restrict)
+  family       Family?           @relation(fields: [familyId], references: [id], onDelete: SetNull)
+  participants BillParticipant[]
+  expenses     Expense[]
+
+  @@map("bills")
+}
+
+model BillParticipant {
+  id          String  @id @default(cuid())
+  billId      String
+  userId      String
+  shareAmount Decimal
+  hasPaid     Boolean @default(false)
+
+  // Relations
+  bill Bill @relation(fields: [billId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([billId, userId])
+  @@map("bill_participants")
+}
+
+model Subscription {
+  id                   String    @id @default(cuid())
+  userId               String    @unique
+  plan                 String    // basic, pro
+  status               String    // active, canceled, past_due, etc.
+  stripeCustomerId     String?   @unique
+  stripeSubscriptionId String?   @unique
+  currentPeriodStart   DateTime?
+  currentPeriodEnd     DateTime?
+  cancelAtPeriodEnd    Boolean   @default(false)
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("subscriptions")
+}
+
+model StripeEventLog {
+  id        String   @id @default(cuid())
+  eventId   String   @unique
+  type      String
+  data      Json
+  processed Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@map("stripe_event_logs")
+}
+
+model Advice {
+  id       String   @id @default(cuid())
+  type     String   // monthly, daily, goal, category
+  title    String
+  content  String
+  metadata Json?
+  date     DateTime @default(now())
+  userId   String
+  familyId String?
+
+  // Relations
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  family Family? @relation(fields: [familyId], references: [id], onDelete: SetNull)
+
+  @@map("advices")
+}
+
+model Forecast {
+  id              String   @id @default(cuid())
+  type            String   // expense, income, savings
+  year            Int
+  month           Int
+  predictedAmount Decimal
+  confidence      Decimal  // 0-1 scale
+  details         Json?    // algorithm details, factors, etc.
+  userId          String
+  familyId        String?
+  createdAt       DateTime @default(now())
+
+  // Relations
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  family Family? @relation(fields: [familyId], references: [id], onDelete: SetNull)
+
+  @@unique([type, year, month, userId])
+  @@map("forecasts")
+}
