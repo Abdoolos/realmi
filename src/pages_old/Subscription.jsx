@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { User } from '@/api/entities';
 import { UserSubscription } from '@/api/entities';
 import { FamilySubscription } from '@/api/entities';
@@ -294,7 +294,7 @@ export default function SubscriptionPage() {
                 <CheckCircle className="h-4 w-4 text-green-600" />
                 <AlertTitle className="text-green-800">تم تطبيق الخصم!</AlertTitle>
                 <AlertDescription className="text-green-700">
-                  كود "{appliedDiscount.code}" - خصم {appliedDiscount.discount.percentage}% على {appliedDiscount.plan_type_applies_to === 'all' ? 'جميع الخطط' : appliedDiscount.plan_type_applies_to === 'premium' ? 'الخطط الفردية المميزة' : 'الخطط العائلية'}.
+                  كود &ldquo;{appliedDiscount.code}&rdquo; - خصم {appliedDiscount.discount.percentage}% على {appliedDiscount.plan_type_applies_to === 'all' ? 'جميع الخطط' : appliedDiscount.plan_type_applies_to === 'premium' ? 'الخطط الفردية المميزة' : 'الخطط العائلية'}.
                 </AlertDescription>
               </Alert>
             )}

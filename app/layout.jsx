@@ -1,18 +1,19 @@
 'use client'
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 // نظام مصادقة بسيط مؤقت
 import { createPageUrl } from "@/utils";
-import { Home, Plus, List, BarChart3, Wallet, Gem, FileText, CalendarPlus, Smartphone, QrCode, Users, PieChart, Target, Tags, Sparkles, ClipboardList, Settings, ChevronDown, Menu, X, Shield, HelpCircle, Mail, FileText as TermsIcon, Heart, LogOut, User } from "lucide-react";
+import { Home, Plus, List, BarChart3, Wallet, Gem, FileText, CalendarPlus, Smartphone, QrCode, Users, PieChart, Target, Tags, Sparkles, ClipboardList, Settings, ChevronDown, Menu, X, Shield, HelpCircle, Mail, FileText as TermsIcon, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { motion } from "framer-motion";
 import { Toaster } from "@/components/ui/sonner";
+import PropTypes from 'prop-types';
 
 import UserDataInitializer from '@/components/user/UserDataInitializer';
 import SubscriptionBanner from '@/components/SubscriptionBanner';
@@ -81,6 +82,15 @@ function NavLink({ item, pathname }) {
   );
 }
 
+NavLink.propTypes = {
+  item: PropTypes.shape({
+    title: PropTypes.string.isRequired,
+    url: PropTypes.string.isRequired,
+    icon: PropTypes.elementType.isRequired
+  }).isRequired,
+  pathname: PropTypes.string.isRequired
+};
+
 function DropdownNavMenu({ title, items, icon: Icon, pathname }) {
   const hasActiveItem = items.some((item) => item.url === pathname);
 
@@ -113,6 +123,17 @@ function DropdownNavMenu({ title, items, icon: Icon, pathname }) {
   );
 }
 
+DropdownNavMenu.propTypes = {
+  title: PropTypes.string.isRequired,
+  items: PropTypes.arrayOf(PropTypes.shape({
+    title: PropTypes.string.isRequired,
+    url: PropTypes.string.isRequired,
+    icon: PropTypes.elementType.isRequired
+  })).isRequired,
+  icon: PropTypes.elementType.isRequired,
+  pathname: PropTypes.string.isRequired
+};
+
 function MobileNavLink({ item, pathname, onClose }) {
   const isActive = pathname === item.url;
   return (
@@ -128,6 +149,16 @@ function MobileNavLink({ item, pathname, onClose }) {
     </Link>
   );
 }
+
+MobileNavLink.propTypes = {
+  item: PropTypes.shape({
+    title: PropTypes.string.isRequired,
+    url: PropTypes.string.isRequired,
+    emoji: PropTypes.string.isRequired
+  }).isRequired,
+  pathname: PropTypes.string.isRequired,
+  onClose: PropTypes.func.isRequired
+};
 
 function MobileNavSection({ title, items, pathname, onClose, emoji, defaultOpen = false }) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
@@ -171,10 +202,21 @@ function MobileNavSection({ title, items, pathname, onClose, emoji, defaultOpen 
   );
 }
 
+MobileNavSection.propTypes = {
+  title: PropTypes.string.isRequired,
+  items: PropTypes.arrayOf(PropTypes.shape({
+    title: PropTypes.string.isRequired,
+    url: PropTypes.string.isRequired,
+    emoji: PropTypes.string.isRequired
+  })).isRequired,
+  pathname: PropTypes.string.isRequired,
+  onClose: PropTypes.func.isRequired,
+  emoji: PropTypes.string.isRequired,
+  defaultOpen: PropTypes.bool
+};
+
 function LayoutContent({ children }) {
   const pathname = usePathname();
-  // مستخدم مؤقت للتطوير
-  const user = { name: "مستخدم" };
   const [qrUrl, setQrUrl] = useState('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [envInfo, setEnvInfo] = useState(null);
@@ -193,8 +235,6 @@ function LayoutContent({ children }) {
   const closeMobileMenu = () => {
     setIsMobileMenuOpen(false);
   };
-
-  // Clerk will handle sign out automatically with SignOutButton
 
   // التحقق من تحميل معلومات البيئة
   if (!envInfo) {
@@ -579,6 +619,10 @@ function LayoutContent({ children }) {
   );
 }
 
+LayoutContent.propTypes = {
+  children: PropTypes.node.isRequired
+};
+
 export default function RootLayout({ children }) {
   return (
     <html lang="ar" dir="rtl">
@@ -590,3 +634,7 @@ export default function RootLayout({ children }) {
     </html>
   );
 }
+
+RootLayout.propTypes = {
+  children: PropTypes.node.isRequired
+};

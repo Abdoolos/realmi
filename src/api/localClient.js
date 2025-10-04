@@ -297,21 +297,21 @@ class Family {
     };
   }
 
-  static async findByInviteCode(inviteCode) {
+  static async findByInviteCode() {
     // Mock family lookup
     return null;
   }
 }
 
 class UserSubscription {
-  static async filter(criteria) {
+  static async filter() {
     // Mock subscription - return empty for free tier
     return [];
   }
 }
 
 class FamilySubscription {
-  static async filter(criteria) {
+  static async filter() {
     // Mock family subscription
     return [];
   }

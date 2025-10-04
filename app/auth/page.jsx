@@ -33,7 +33,7 @@ export default function AuthPage() {
         if (user && user.setup_completed) {
           router.push('/dashboard');
         }
-      } catch (error) {
+      } catch {
         console.log('No existing user found');
       }
     };

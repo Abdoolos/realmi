@@ -21,7 +21,7 @@ export default function HomePage() {
           router.push('/auth');
           return;
         }
-      } catch (error) {
+      } catch {
         // مستخدم جديد - توجيه لصفحة التسجيل
         router.push('/auth');
         return;
