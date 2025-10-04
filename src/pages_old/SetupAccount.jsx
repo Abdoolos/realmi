@@ -23,13 +23,6 @@ export default function SetupAccount() {
     preferred_currency: 'SAR'
   });
 
-  useEffect(() => {
-    // منع الطلبات المتكررة
-    if (hasCheckedUser.current) return;
-    
-    checkUserSetup();
-  }, []);
-
   const checkUserSetup = async () => {
     // منع الطلبات المتكررة
     if (hasCheckedUser.current) return;
@@ -78,6 +71,13 @@ export default function SetupAccount() {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    // منع الطلبات المتكررة
+    if (hasCheckedUser.current) return;
+    
+    checkUserSetup();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSave = async () => {
     if (!formData.phone || !formData.preferred_currency) {

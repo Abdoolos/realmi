@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { User } from '@/api/entities';
 import { Family } from '@/api/entities';
 import { Button } from '@/components/ui/button';
@@ -7,10 +7,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Users, UserPlus, Copy, Trash2, LogOut, CheckCircle, AlertTriangle, Crown, Settings, PlusCircle, Link as LinkIcon } from 'lucide-react';
+import { Loader2, Users, UserPlus, Copy, Trash2, Crown } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 
@@ -27,7 +26,6 @@ export default function MyFamilyPage() {
         isLoading,
         error,
         hasFamily,
-        isAdmin,
         hasFamilyPlan,
         canManage,
         retry
