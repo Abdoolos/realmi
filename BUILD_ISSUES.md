@@ -875,3 +875,30 @@
 23:54:35.824 
 23:54:35.824 info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/app/api-reference/config/eslint#disabling-rules
 23:54:35.849 Error: Command "npm run build" exited with 1
+2:8  Error: 'React' is defined but never used.  no-unused-vars
+./src/pages_old/ManageEvents.jsx
+2:8  Error: 'React' is defined but never used.  no-unused-vars
+13:10  Error: 'format' is defined but never used.  no-unused-vars
+14:10  Error: 'ar' is defined but never used.  no-unused-vars
+./src/pages_old/MonthlyReport.jsx
+2:8  Error: 'React' is defined but never used.  no-unused-vars
+5:10  Error: 'ar' is defined but never used.  no-unused-vars
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/app/api-reference/config/eslint#disabling-rules
+Error: Command "npm run build" exited with 1
+Deployment Summary
+Assigning Custom Domains
+fix: resolve build issues and clean up code - 7a7ef9
+Import a different Git Repository →
+Browse Templates →
+Home
+Docs
+Guides
+Academy
+Help
+Contact
+
+All systems normal.
+Select a display theme:
+system
+light
+dark
