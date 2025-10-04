@@ -1,14 +1,14 @@
 
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { FinancialPlan } from '@/api/entities';
 import { Category } from '@/api/entities';
 import { User } from '@/api/entities';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip as RechartsTooltip } from 'recharts';
-import { DollarSign, Goal, PlusCircle, Trash2, Edit, Save, Loader2, ClipboardList } from 'lucide-react';
+import { DollarSign, Goal, PlusCircle, Trash2, Save, Loader2, ClipboardList } from 'lucide-react';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import { toast } from 'sonner';
@@ -20,7 +20,6 @@ const FinancialPlanner = () => {
     const [categories, setCategories] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
-    const [currentUser, setCurrentUser] = useState(null);
     
     const currentMonth = format(new Date(), 'yyyy-MM');
 
@@ -28,7 +27,6 @@ const FinancialPlanner = () => {
         setIsLoading(true);
         try {
             const user = await User.me();
-            setCurrentUser(user);
 
             const [planData, categoriesData] = await Promise.all([
                 FinancialPlan.filter({ month: currentMonth, created_by: user.email }),

@@ -1,5 +1,4 @@
 
-import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Mail, Globe, MessageCircle, MapPin, Send, Users } from 'lucide-react';
 import { motion } from 'framer-motion';

@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { UserSubscription } from '@/api/entities';
 import { FamilySubscription } from '@/api/entities';
 import { User } from '@/api/entities';
@@ -63,7 +63,7 @@ export default function AccountPage() {
       } else {
         window.location.href = data.url;
       }
-    } catch (err) {
+    } catch {
       toast.error("حدث خطأ غير متوقع.");
     } finally {
       setIsPortalLoading(false);

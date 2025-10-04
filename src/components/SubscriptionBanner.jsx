@@ -1,11 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { User } from '@/api/entities';
-import { UserSubscription, FamilySubscription } from '@/api/entities';
-import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { Sparkles, X, Crown, Gift } from 'lucide-react';
+import { X, Gift } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function SubscriptionBanner() {

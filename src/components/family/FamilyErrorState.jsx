@@ -1,9 +1,8 @@
-import React from 'react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
 
-export default function FamilyErrorState({ error, onRetry }) {
+export default function FamilyErrorState({ onRetry }) {
     return (
         <div className="max-w-2xl mx-auto">
             <Alert variant="destructive" className="mb-6">

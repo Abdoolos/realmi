@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { User } from '@/api/entities';
 import { useRouter } from 'next/navigation';
 import { createPageUrl } from '@/utils';
@@ -39,8 +39,8 @@ export default function UserDataInitializer() {
         }
 
         // التحقق من الحقول المطلوبة والتحديث إذا لزم الأمر
-        const hasRequiredFields = user.hasOwnProperty('preferred_currency') && 
-                                 user.hasOwnProperty('setup_completed');
+        const hasRequiredFields = Object.prototype.hasOwnProperty.call(user, 'preferred_currency') && 
+                                 Object.prototype.hasOwnProperty.call(user, 'setup_completed');
         
         if (!hasRequiredFields) {
           // تحديث البيانات الناقصة

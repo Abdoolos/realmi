@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { validateConfig } from '@/components/utils/configValidator';
 import { getEnvironmentInfo } from '@/components/utils/envUtils';
 import { Alert, AlertDescription } from '@/components/ui/alert';
