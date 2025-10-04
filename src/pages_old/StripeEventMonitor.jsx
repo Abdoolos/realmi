@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Search, RefreshCw, CheckCircle, XCircle, Clock } from 'lucide-react';
 import { getStripeEventStatus } from '@/api/functions';
+import PropTypes from 'prop-types';
 
 const StatusBadge = ({ status }) => {
     const config = {
@@ -22,6 +23,10 @@ const StatusBadge = ({ status }) => {
             {status === 'processed' ? 'معالج' : status === 'failed' ? 'فشل' : 'تم تخطيه'}
         </Badge>
     );
+};
+
+StatusBadge.propTypes = {
+    status: PropTypes.string.isRequired
 };
 
 export default function StripeEventMonitor() {
