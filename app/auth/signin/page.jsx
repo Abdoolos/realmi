@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "../../../src/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../src/components/ui/card";
-import Image from "next/image";
 
 export default function SignInPage() {
   const router = useRouter();
@@ -130,14 +129,8 @@ export default function SignInPage() {
           </CardContent>
         </Card>
 
-        {/* معلومات المطور */}
+        {/* معلومات حقوق الطبع */}
         <div className="text-center mt-8 space-y-2">
-          <p className="text-sm text-gray-500">
-            تم تطوير هذا التطبيق بـ ❤️ من قبل
-          </p>
-          <p className="text-lg font-semibold text-gray-700">
-            Abdullah Alawiss
-          </p>
           <div className="flex justify-center gap-4 text-xs text-gray-400">
             <span>© 2025 جميع الحقوق محفوظة</span>
           </div>

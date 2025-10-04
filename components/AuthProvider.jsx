@@ -3,6 +3,7 @@
 import { SessionProvider, useSession } from "next-auth/react";
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect } from "react";
+import PropTypes from 'prop-types';
 
 function AuthGuard({ children }) {
   const { data: session, status } = useSession();
@@ -45,6 +46,10 @@ function AuthGuard({ children }) {
   return null;
 }
 
+AuthGuard.propTypes = {
+  children: PropTypes.node.isRequired,
+};
+
 export default function AuthProvider({ children }) {
   return (
     <SessionProvider>
@@ -54,3 +59,7 @@ export default function AuthProvider({ children }) {
     </SessionProvider>
   );
 }
+
+AuthProvider.propTypes = {
+  children: PropTypes.node.isRequired,
+};
