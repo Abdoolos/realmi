@@ -304,7 +304,7 @@ export class EventService {
       dailyBudgetRemaining,
       categoryBreakdown,
       recommendations,
-      alerts,
+      alerts: alerts as any,
     };
   }
 

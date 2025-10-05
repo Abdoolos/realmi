@@ -14,7 +14,7 @@ export interface ExpenseWithDetails extends Expense {
   } | null;
   user: {
     id: string;
-    name: string;
+    name: string | null;
   };
 }
 

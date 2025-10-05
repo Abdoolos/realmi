@@ -137,7 +137,7 @@ export async function POST(request: NextRequest) {
 
     // Create expense
     const expense = await expenseRepository.create({
-      amount,
+      amount: amount as any,
       description,
       categoryId,
       subcategoryId: subcategoryId || null,

@@ -127,7 +127,7 @@ export async function POST(request: NextRequest) {
 
     // Create income
     const income = await incomeRepository.create({
-      amount,
+      amount: amount as any,
       type,
       description,
       date: new Date(date),

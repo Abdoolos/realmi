@@ -4,7 +4,7 @@ import { Income, Prisma } from '@prisma/client';
 export interface IncomeWithDetails extends Income {
   user: {
     id: string;
-    name: string;
+    name: string | null;
   };
 }
 

@@ -94,7 +94,7 @@ export async function GET(request: NextRequest) {
     );
 
     // Get budget alerts if user/family is specified
-    let alerts = [];
+    let alerts: any[] = [];
     if (userId || familyId) {
       alerts = await budgetService.checkBudgetAlerts(userId, familyId);
     }
@@ -181,14 +181,17 @@ export async function POST(request: NextRequest) {
     const budget = await budgetRepository.create(
       {
         name,
-        totalLimit,
+        totalLimit: totalLimit as any,
         startDate: start,
         endDate: end,
         userId,
         familyId: familyId || null,
         eventId: eventId || null,
       },
-      categoryBudgets
+      categoryBudgets.map(cb => ({
+        ...cb,
+        limit: cb.limit as any
+      }))
     );
 
     // Get budget summary

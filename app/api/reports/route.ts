@@ -76,10 +76,11 @@ async function handleMonthlyReport(searchParams: URLSearchParams) {
   const queryParams = Object.fromEntries(searchParams.entries());
   
   // Convert string numbers to integers
-  if (queryParams.year) queryParams.year = parseInt(queryParams.year);
-  if (queryParams.month) queryParams.month = parseInt(queryParams.month);
+  const processedParams = { ...queryParams };
+  if (processedParams.year) processedParams.year = parseInt(processedParams.year as string) as any;
+  if (processedParams.month) processedParams.month = parseInt(processedParams.month as string) as any;
 
-  const validationResult = MonthlyReportSchema.safeParse(queryParams);
+  const validationResult = MonthlyReportSchema.safeParse(processedParams);
   if (!validationResult.success) {
     return errorResponse(
       'معاملات غير صحيحة: ' + validationResult.error.errors.map(e => e.message).join(', ')
@@ -94,7 +95,7 @@ async function handleMonthlyReport(searchParams: URLSearchParams) {
     if (format === 'pdf') {
       const pdfBuffer = await pdfGenerator.generateMonthlyReportPDF(reportData);
       
-      return new NextResponse(pdfBuffer, {
+      return new NextResponse(pdfBuffer as any, {
         status: 200,
         headers: {
           'Content-Type': 'application/pdf',
@@ -123,9 +124,10 @@ async function handleYearlyReport(searchParams: URLSearchParams) {
   const queryParams = Object.fromEntries(searchParams.entries());
   
   // Convert string numbers to integers
-  if (queryParams.year) queryParams.year = parseInt(queryParams.year);
+  const processedParams2 = { ...queryParams };
+  if (processedParams2.year) processedParams2.year = parseInt(processedParams2.year as string) as any;
 
-  const validationResult = YearlyReportSchema.safeParse(queryParams);
+  const validationResult = YearlyReportSchema.safeParse(processedParams2);
   if (!validationResult.success) {
     return errorResponse(
       'معاملات غير صحيحة: ' + validationResult.error.errors.map(e => e.message).join(', ')
@@ -140,7 +142,7 @@ async function handleYearlyReport(searchParams: URLSearchParams) {
     if (format === 'pdf') {
       const pdfBuffer = await pdfGenerator.generateYearlyReportPDF(reportData);
       
-      return new NextResponse(pdfBuffer, {
+      return new NextResponse(pdfBuffer as any, {
         status: 200,
         headers: {
           'Content-Type': 'application/pdf',

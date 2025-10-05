@@ -144,10 +144,11 @@ async function handleMonthlyAdvice(searchParams: URLSearchParams) {
   const queryParams = Object.fromEntries(searchParams.entries());
   
   // Convert string numbers to integers
-  if (queryParams.year) queryParams.year = parseInt(queryParams.year);
-  if (queryParams.month) queryParams.month = parseInt(queryParams.month);
+  const processedParams = { ...queryParams };
+  if (processedParams.year) processedParams.year = parseInt(processedParams.year as string) as any;
+  if (processedParams.month) processedParams.month = parseInt(processedParams.month as string) as any;
 
-  const validationResult = MonthlyAdviceSchema.safeParse(queryParams);
+  const validationResult = MonthlyAdviceSchema.safeParse(processedParams);
   if (!validationResult.success) {
     return errorResponse(
       'معاملات غير صحيحة: ' + validationResult.error.errors.map(e => e.message).join(', ')

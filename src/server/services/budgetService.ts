@@ -200,7 +200,7 @@ export class BudgetService {
 
       return {
         overall: { score: overallScore, status: overallStatus, message: overallMessage },
-        categories,
+        categories: categories as any,
         suggestions,
       };
     } catch (error) {

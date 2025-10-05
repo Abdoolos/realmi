@@ -308,7 +308,7 @@ export class BudgetRepository {
     overagePercentage: number;
   }>> {
     const activeBudgets = await this.getActiveBudgets(userId, familyId);
-    const alerts = [];
+  const alerts: any[] = [];
 
     for (const budget of activeBudgets) {
       const summary = await this.getBudgetSummary(budget.id);

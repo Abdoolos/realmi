@@ -470,7 +470,7 @@ export class PDFGenerator {
       });
       
       // Wait a bit more for Google Fonts to load
-      await page.waitForTimeout(2000);
+      await new Promise(resolve => setTimeout(resolve, 2000));
 
       const pdf = await page.pdf({
         format: 'A4',

@@ -50,7 +50,6 @@ export class CategoryRepository {
     if (filters.name) {
       where.name = {
         contains: filters.name,
-        mode: 'insensitive',
       };
     }
 

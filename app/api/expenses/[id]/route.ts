@@ -33,10 +33,10 @@ function successResponse(data: any, status: number = 200) {
 // GET /api/expenses/[id] - Get expense by ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     if (!id) {
       return errorResponse('معرف المصروف مطلوب', 'MISSING_ID');
@@ -59,10 +59,10 @@ export async function GET(
 // PUT /api/expenses/[id] - Update expense
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     if (!id) {
       return errorResponse('معرف المصروف مطلوب', 'MISSING_ID');
@@ -144,10 +144,10 @@ export async function PUT(
 // DELETE /api/expenses/[id] - Delete expense
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     if (!id) {
       return errorResponse('معرف المصروف مطلوب', 'MISSING_ID');

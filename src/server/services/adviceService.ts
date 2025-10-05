@@ -222,7 +222,7 @@ export class AdviceService {
 
       if (topCategories.length > 0) {
         const topCategory = topCategories[0];
-        if (topCategory.percentage > 40) {
+        if (topCategory.total > 400) {
           recommendations.push(`فكر في تقليل مصاريف ${topCategory.categoryName} في الأسبوع القادم`);
         }
       }

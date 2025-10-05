@@ -154,7 +154,7 @@ export class ReportService {
     }));
 
     // Get budget comparison if available
-    let budgetComparison = undefined;
+    let budgetComparison: any = undefined;
     const currentBudget = await budgetRepository.getCurrentMonthBudget(userId, familyId);
     if (currentBudget) {
       const summary = await budgetRepository.getBudgetSummary(currentBudget.id);
@@ -235,7 +235,7 @@ export class ReportService {
     userId?: string,
     familyId?: string
   ): Promise<YearlyReportData> {
-    const monthlyData = [];
+    const monthlyData: any[] = [];
     let totalIncome = 0;
     let totalExpenses = 0;
 
