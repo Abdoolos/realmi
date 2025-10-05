@@ -5,9 +5,10 @@ import { useRouter } from 'next/navigation';
 import { Button } from '../../../src/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../../src/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../src/components/ui/select';
-import { Wallet, Loader2, ArrowLeft } from 'lucide-react';
+import { Wallet, Loader2, ArrowLeft, AlertCircle, CheckCircle } from 'lucide-react';
 import { User } from '../../../src/api/entities';
 import { toast } from 'sonner';
+import { Alert, AlertDescription } from '../../../src/components/ui/alert';
 import Image from 'next/image';
 
 // معلومات العملات
@@ -25,6 +26,8 @@ export default function GoogleSignInPage() {
   const [selectedCurrency, setSelectedCurrency] = useState('SAR');
   const [isLoading, setIsLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [googleReady, setGoogleReady] = useState(false);
+  const [error, setError] = useState('');
 
   // تحقق من وجود مستخدم مسجل مسبقاً
   useEffect(() => {
@@ -42,55 +45,151 @@ export default function GoogleSignInPage() {
     checkExistingUser();
   }, [router]);
 
-  // دالة تسجيل الدخول بـ Google
-  const handleGoogleSignIn = async () => {
-    setGoogleLoading(true);
-    
-    try {
-      // تحميل Google Identity Services API
-      if (!window.google) {
-        await loadGoogleAPI();
-      }
-
-      // تكوين Google OAuth
-      window.google.accounts.id.initialize({
-        client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "454676723375-5gdpd8shc5e06e8fp38d9p810smffpfc.apps.googleusercontent.com",
-        callback: handleGoogleCallback,
-        ux_mode: 'popup',
-        auto_select: false
-      });
-
-      // عرض نافذة تسجيل الدخول
-      window.google.accounts.id.prompt();
-      
-    } catch (error) {
-      console.error('Google Sign-In Error:', error);
-      toast.error('فشل في تسجيل الدخول بـ Google. يرجى المحاولة مرة أخرى.');
-      setGoogleLoading(false);
-    }
-  };
+  // تحميل Google API عند تحميل الصفحة
+  useEffect(() => {
+    loadGoogleAPI();
+  }, []);
 
   // تحميل Google API
-  const loadGoogleAPI = () => {
-    return new Promise((resolve, reject) => {
+  const loadGoogleAPI = async () => {
+    try {
+      setError('');
+      console.log('🔄 بدء تحميل Google API...');
+      
+      // التحقق من وجود Google API مسبقاً
+      if (window.google?.accounts?.id) {
+        console.log('✅ Google API محمل مسبقاً');
+        initializeGoogle();
+        return;
+      }
+
+      // إضافة script tag لتحميل Google API
       const script = document.createElement('script');
       script.src = 'https://accounts.google.com/gsi/client';
       script.async = true;
       script.defer = true;
-      script.onload = resolve;
-      script.onerror = reject;
+      
+      script.onload = () => {
+        console.log('✅ تم تحميل Google API بنجاح');
+        setTimeout(() => {
+          initializeGoogle();
+        }, 1000); // انتظار ثانية للتأكد من تحميل كامل
+      };
+      
+      script.onerror = (error) => {
+        console.error('❌ فشل في تحميل Google API:', error);
+        setError('فشل في تحميل خدمات Google. تأكد من اتصالك بالإنترنت.');
+      };
+      
       document.head.appendChild(script);
-    });
+      
+    } catch (error) {
+      console.error('❌ خطأ في تحميل Google API:', error);
+      setError('حدث خطأ أثناء تحميل خدمات Google');
+    }
+  };
+
+  // تهيئة Google OAuth
+  const initializeGoogle = () => {
+    try {
+      if (!window.google?.accounts?.id) {
+        throw new Error('Google API غير متوفر');
+      }
+
+      const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "454676723375-5gdpd8shc5e06e8fp38d9p810smffpfc.apps.googleusercontent.com";
+      
+      console.log('🔧 تهيئة Google OAuth مع Client ID:', clientId.substring(0, 20) + '...');
+      
+      window.google.accounts.id.initialize({
+        client_id: clientId,
+        callback: handleGoogleCallback,
+        auto_select: false,
+        cancel_on_tap_outside: true,
+      });
+
+      console.log('✅ تم تهيئة Google OAuth بنجاح');
+      setGoogleReady(true);
+      setError('');
+      
+    } catch (error) {
+      console.error('❌ فشل في تهيئة Google OAuth:', error);
+      setError('فشل في تهيئة خدمات Google. يرجى إعادة تحميل الصفحة.');
+    }
+  };
+
+  // دالة تسجيل الدخول بـ Google
+  const handleGoogleSignIn = async () => {
+    try {
+      setGoogleLoading(true);
+      setError('');
+      
+      if (!googleReady || !window.google?.accounts?.id) {
+        throw new Error('خدمات Google غير جاهزة');
+      }
+
+      console.log('🚀 بدء عملية تسجيل الدخول...');
+
+      // عرض نافذة تسجيل الدخول باستخدام popup
+      window.google.accounts.id.prompt((notification) => {
+        console.log('Google prompt notification:', notification);
+        
+        if (notification.isNotDisplayed()) {
+          console.warn('⚠️ لم يتم عرض نافذة Google');
+          setError('لم يتم عرض نافذة تسجيل الدخول. تأكد من السماح للنوافذ المنبثقة.');
+          setGoogleLoading(false);
+        }
+        
+        if (notification.isSkippedMoment()) {
+          console.log('ℹ️ تم تخطي نافذة تسجيل الدخول');
+          setGoogleLoading(false);
+        }
+      });
+      
+    } catch (error) {
+      console.error('❌ خطأ في تسجيل الدخول بـ Google:', error);
+      setError(error.message || 'فشل في تسجيل الدخول بـ Google. يرجى المحاولة مرة أخرى.');
+      setGoogleLoading(false);
+    }
+  };
+
+  // طريقة بديلة لتسجيل الدخول
+  const handleAlternativeGoogleSignIn = () => {
+    try {
+      setError('');
+      const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "454676723375-5gdpd8shc5e06e8fp38d9p810smffpfc.apps.googleusercontent.com";
+      const redirectUri = window.location.origin + '/auth/google-callback';
+      
+      const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +
+        `client_id=${clientId}&` +
+        `redirect_uri=${encodeURIComponent(redirectUri)}&` +
+        `response_type=code&` +
+        `scope=openid email profile&` +
+        `access_type=offline`;
+      
+      window.location.href = googleAuthUrl;
+      
+    } catch (error) {
+      console.error('❌ خطأ في الطريقة البديلة:', error);
+      setError('فشلت جميع طرق تسجيل الدخول. يرجى المحاولة لاحقاً.');
+    }
   };
 
   // معالج callback من Google
   const handleGoogleCallback = async (response) => {
-    setGoogleLoading(false);
-    setIsLoading(true);
-
     try {
+      setGoogleLoading(false);
+      setIsLoading(true);
+      setError('');
+
+      console.log('📨 استلام رد من Google');
+
+      if (!response.credential) {
+        throw new Error('لم يتم استلام بيانات صحيحة من Google');
+      }
+
       // فك تشفير JWT token
       const userInfo = parseJwt(response.credential);
+      console.log('👤 معلومات المستخدم:', { name: userInfo.name, email: userInfo.email });
       
       // إنشاء أو تحديث المستخدم
       await User.updateMyUserData({
@@ -105,13 +204,14 @@ export default function GoogleSignInPage() {
 
       toast.success(`مرحباً ${userInfo.name}! تم تسجيل الدخول بنجاح 🎉`);
       
-      // انتقال للصفحة التالية (تسجيل عادي أو لوحة التحكم)
+      // انتقال للوحة التحكم
       setTimeout(() => {
-        router.push('/auth');
+        router.push('/dashboard');
       }, 1000);
 
     } catch (error) {
-      console.error('Error processing Google callback:', error);
+      console.error('❌ خطأ في معالجة رد Google:', error);
+      setError('حدث خطأ أثناء تسجيل الدخول. يرجى المحاولة مرة أخرى.');
       toast.error('حدث خطأ أثناء تسجيل الدخول. يرجى المحاولة مرة أخرى.');
       setIsLoading(false);
     }
@@ -130,8 +230,8 @@ export default function GoogleSignInPage() {
       );
       return JSON.parse(jsonPayload);
     } catch (error) {
-      console.error('Error parsing JWT:', error);
-      throw new Error('Invalid token');
+      console.error('❌ خطأ في فك تشفير JWT:', error);
+      throw new Error('بيانات غير صحيحة من Google');
     }
   };
 
@@ -181,6 +281,23 @@ export default function GoogleSignInPage() {
             <p className="text-emerald-600 text-lg">استخدم حساب Google للدخول بسهولة وأمان</p>
           </div>
 
+          {/* رسائل الحالة */}
+          {error && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+
+          {googleReady && !error && (
+            <Alert className="border-green-200 bg-green-50">
+              <CheckCircle className="h-4 w-4 text-green-600" />
+              <AlertDescription className="text-green-800">
+                خدمات Google جاهزة للاستخدام ✓
+              </AlertDescription>
+            </Alert>
+          )}
+
           {/* بطاقة تسجيل الدخول */}
           <Card className="w-full shadow-2xl border-0 bg-white/90 backdrop-blur-sm">
             <CardHeader className="text-center pb-4">
@@ -215,10 +332,10 @@ export default function GoogleSignInPage() {
                 </Select>
               </div>
 
-              {/* زر تسجيل الدخول بـ Google */}
+              {/* زر تسجيل الدخول بـ Google الرئيسي */}
               <Button
                 onClick={handleGoogleSignIn}
-                disabled={googleLoading || isLoading}
+                disabled={!googleReady || googleLoading || isLoading}
                 className="w-full h-16 bg-white hover:bg-gray-50 text-gray-700 border-2 border-gray-200 hover:border-gray-300 shadow-lg text-lg font-semibold"
               >
                 {googleLoading ? (
@@ -230,6 +347,11 @@ export default function GoogleSignInPage() {
                   <>
                     <Loader2 className="w-6 h-6 animate-spin ml-3" />
                     جاري تسجيل الدخول...
+                  </>
+                ) : !googleReady ? (
+                  <>
+                    <Loader2 className="w-6 h-6 animate-spin ml-3" />
+                    جاري تهيئة Google...
                   </>
                 ) : (
                   <>
@@ -244,6 +366,35 @@ export default function GoogleSignInPage() {
                 )}
               </Button>
 
+              {/* زر الطريقة البديلة */}
+              {error && (
+                <div className="space-y-2">
+                  <div className="text-center">
+                    <span className="text-sm text-amber-600">هل لم تعمل الطريقة الأولى؟</span>
+                  </div>
+                  <Button
+                    onClick={handleAlternativeGoogleSignIn}
+                    variant="outline"
+                    disabled={isLoading}
+                    className="w-full h-12 border-amber-300 text-amber-700 hover:bg-amber-50"
+                  >
+                    جرب الطريقة البديلة لـ Google
+                  </Button>
+                </div>
+              )}
+
+              {/* إعادة تحميل Google API */}
+              {error && (
+                <Button
+                  onClick={loadGoogleAPI}
+                  variant="outline"
+                  disabled={isLoading}
+                  className="w-full h-12 border-emerald-300 text-emerald-700 hover:bg-emerald-50"
+                >
+                  إعادة تحميل خدمات Google
+                </Button>
+              )}
+
               {/* معلومات الأمان */}
               <div className="bg-emerald-50 p-4 rounded-lg">
                 <h4 className="font-semibold text-emerald-800 mb-2">✅ لماذا Google؟</h4>
@@ -252,6 +403,17 @@ export default function GoogleSignInPage() {
                   <li>• لا نحفظ كلمة مرورك</li>
                   <li>• دخول سريع ومريح</li>
                   <li>• يمكنك الخروج في أي وقت</li>
+                </ul>
+              </div>
+
+              {/* نصائح لحل المشاكل */}
+              <div className="bg-blue-50 p-4 rounded-lg">
+                <h4 className="font-semibold text-blue-800 mb-2">💡 نصائح لحل المشاكل:</h4>
+                <ul className="text-sm text-blue-700 space-y-1">
+                  <li>• تأكد من السماح للنوافذ المنبثقة</li>
+                  <li>• جرب تعطيل مانع الإعلانات مؤقتاً</li>
+                  <li>• تأكد من اتصالك بالإنترنت</li>
+                  <li>• جرب متصفحاً آخر إذا لم تعمل</li>
                 </ul>
               </div>
 
