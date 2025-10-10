@@ -131,37 +131,111 @@ class AgentSDK {
     this.notifySubscribers(conversation.id, conv);
   }
 
-  // Generate response based on user message content
-  generateResponseBasedOnMessage(message) {
+  // Generate response based on user message content using enhanced knowledge base
+  async generateResponseBasedOnMessage(message) {
+    // Import knowledge base dynamically
+    const { analyzeIntent, getPageInfo, MENU_INFO, API_ROUTES, APP_INFO, FINANCIAL_TIPS } = await import('./knowledgeBase.js');
+    
     const lowerMessage = message.toLowerCase();
+    const intent = analyzeIntent(message);
     
-    // Check for expense-related keywords
-    if (lowerMessage.includes('صرفت') || lowerMessage.includes('اشتريت') || lowerMessage.includes('دفعت')) {
-      return `✅ تم تسجيل المصروف بنجاح!\n\nشكراً لك على تسجيل هذا المصروف. تم إضافته إلى حسابك.\n\n💡 **نصيحة**: يمكنك أيضاً تصنيف مصاريفك لتتبع أفضل، مثل "طعام"، "مواصلات"، "فواتير".`;
+    // Handle navigation requests
+    if (intent.intent === 'navigate' && intent.target) {
+      const pageInfo = getPageInfo(intent.target);
+      if (pageInfo) {
+        return `🧭 **${pageInfo.title}**\n\n📝 ${pageInfo.description}\n\n**الميزات المتاحة:**\n${pageInfo.features.map(f => `• ${f}`).join('\n')}\n\n💡 **كيفية الاستخدام:**\n${pageInfo.howToUse}\n\n🔗 [انتقل إلى ${pageInfo.title}](${intent.target})`;
+      }
     }
     
-    // Check for income-related keywords
-    if (lowerMessage.includes('راتب') || lowerMessage.includes('دخل')) {
-      return `💰 ممتاز! تسجيل الدخل مهم جداً للتخطيط المالي.\n\n✨ **اقتراح**: يمكنك الآن وضع ميزانيات شهرية لمختلف فئات المصاريف.\n\n📊 هل تريد مني مساعدتك في وضع ميزانية شهرية؟`;
+    // Handle expense addition
+    if (intent.intent === 'add_expense') {
+      if (intent.amount && intent.category) {
+        // Try to add expense via API
+        try {
+          await this.addExpenseToAPI(intent.amount, intent.category, message);
+          return `✅ **تم تسجيل المصروف بنجاح!**\n\n💰 المبلغ: ${intent.amount} ريال\n🏷️ الفئة: ${intent.category}\n\n📊 تم إضافة المصروف إلى حسابك وسيظهر في التقارير.\n\n💡 **نصيحة**: يمكنك عرض جميع مصاريفك من [قائمة المصاريف](/expenses-list)`;
+        } catch (error) {
+          return `✅ **تم فهم طلبك لإضافة مصروف**\n\n💰 المبلغ: ${intent.amount} ريال\n🏷️ الفئة: ${intent.category}\n\n📝 لإكمال إضافة المصروف، توجه إلى [صفحة إضافة مصروف](/add-expense)\n\n💡 أو يمكنك قول "انتقل إلى إضافة مصروف" وسأوجهك هناك.`;
+        }
+      } else {
+        return `💰 **أريد مساعدتك في تسجيل المصروف!**\n\n🤔 يبدو أنك تريد إضافة مصروف، لكن أحتاج معلومات أكثر:\n\n**المطلوب:**\n• المبلغ (مثل: 50 ريال)\n• الفئة (مثل: طعام، مواصلات)\n\n**أمثلة:**\n• "صرفت 75 ريال على طعام"\n• "اشتريت بنزين بـ 100 ريال"\n• "دفعت 25 ريال تاكسي"\n\n🔗 أو يمكنك الذهاب مباشرة إلى [صفحة إضافة مصروف](/add-expense)`;
+      }
     }
     
-    // Check for budget-related keywords
-    if (lowerMessage.includes('ميزانية') || lowerMessage.includes('حدد') || lowerMessage.includes('خطة')) {
-      return `🎯 إعداد الميزانية خطوة ذكية!\n\n**نصائح لميزانية ناجحة:**\n• حدد 50% للضروريات (سكن، طعام، مواصلات)\n• 30% للترفيه والمصاريف الشخصية\n• 20% للادخار والاستثمار\n\n💡 أخبرني بدخلك الشهري وسأساعدك في توزيع مناسب!`;
+    // Handle data queries
+    if (intent.intent === 'query_data') {
+      try {
+        const reportData = await this.getReportData(intent.type);
+        return this.formatReportResponse(reportData, intent.type);
+      } catch (error) {
+        return `📊 **تقرير مصاريفك**\n\n🔍 يمكنني مساعدتك في عرض:\n\n📅 **التقرير الشهري**: كامل بالرسوم البيانية\n📈 **الإحصائيات**: تحليل عادات الإنفاق\n👨‍👩‍👧‍👦 **تقرير العائلة**: إذا كنت في عائلة\n\n🔗 **روابط سريعة:**\n• [التقرير الشهري](/monthly-report)\n• [الإحصائيات](/analytics)\n• [تقرير العائلة](/family-report)\n\nأو قل "انتقل إلى التقرير الشهري" وسأوجهك هناك.`;
+      }
     }
     
-    // Check for report-related keywords
-    if (lowerMessage.includes('كم صرفت') || lowerMessage.includes('تقرير') || lowerMessage.includes('ملخص')) {
-      return `📊 **ملخص مصاريفك:**\n\n🍔 الطعام: 450 ريال\n🚗 المواصلات: 200 ريال\n🏠 الفواتير: 350 ريال\n🛒 متنوعة: 180 ريال\n\n💰 **إجمالي الشهر**: 1,180 ريال\n\n📈 **مقارنة بالشهر الماضي**: انخفاض 5%\n\n✨ أداء ممتاز! تسير وفق الميزانية المحددة.`;
-    }
-    
-    // Check for help or greeting
+    // Handle general app information requests
     if (lowerMessage.includes('مساعدة') || lowerMessage.includes('أهلا') || lowerMessage.includes('مرحبا') || lowerMessage.includes('help')) {
-      return `🌟 أهلاً وسهلاً! أنا المساعد المالي الذكي.\n\n**يمكنني مساعدتك في:**\n\n💰 تسجيل المصاريف والدخل\n📊 عرض التقارير والإحصائيات\n🎯 وضع وإدارة الميزانيات\n📈 تحليل عادات الإنفاق\n💡 تقديم نصائح مالية\n\n**أمثلة على ما يمكنك قوله:**\n• "صرفت 50 ريال على طعام"\n• "كم صرفت هذا الشهر؟"\n• "ضع ميزانية للمواصلات 300 ريال"\n• "راتبي 8000 ريال شهرياً"\n\nما الذي تريد مساعدة فيه اليوم؟`;
+      return `🌟 **أهلاً وسهلاً في ${APP_INFO.name}!**\n\n🤖 أنا المساعد الذكي، طورني **${APP_INFO.developer}** لمساعدتك في إدارة أموالك.\n\n**يمكنني مساعدتك في:**\n\n💰 **إضافة المصاريف**: "صرفت 50 ريال طعام"\n📊 **عرض التقارير**: "كم صرفت هذا الشهر؟"\n🎯 **إدارة الميزانيات**: "ضع ميزانية للطعام 500 ريال"\n🧭 **التنقل**: "انتقل إلى قائمة المصاريف"\n💡 **النصائح المالية**: "أعطني نصائح للادخار"\n\n**القوائم المتاحة:**\n${Object.values(MENU_INFO).slice(0, 5).map(info => `• ${info.title}`).join('\n')}\n\n💬 **جرب قول:** "اعرض القوائم المتاحة" لرؤية جميع الوظائف`;
     }
     
-    // Default response
-    return `شكراً لك على رسالتك! 😊\n\nأفهم أنك تريد المساعدة في الأمور المالية. يمكنني مساعدتك في:\n\n💰 **تسجيل المصاريف**: قل "صرفت [المبلغ] على [الفئة]"\n📊 **عرض التقارير**: قل "كم صرفت هذا الشهر؟"\n🎯 **إدارة الميزانية**: قل "ضع ميزانية لـ [الفئة]"\n\n**مثال**: "اشتريت طعام بـ 85 ريال اليوم"\n\nكيف يمكنني مساعدتك تحديداً؟`;
+    // Handle menu listing
+    if (lowerMessage.includes('قوائم') || lowerMessage.includes('وظائف') || lowerMessage.includes('ميزات')) {
+      return `📋 **القوائم والوظائف المتاحة في ${APP_INFO.name}:**\n\n${Object.entries(MENU_INFO).map(([route, info]) => 
+        `🔹 **${info.title}**\n   ${info.description}\n   💬 ${info.quickPhrase || 'قل "انتقل إلى ' + info.title + '"'}\n`
+      ).join('\n')}\n\n💡 **لاستخدام أي وظيفة:** اذكر اسمها أو قل "انتقل إلى [اسم الوظيفة]"`;
+    }
+    
+    // Handle financial tips requests
+    if (lowerMessage.includes('نصائح') || lowerMessage.includes('نصيحة')) {
+      const randomTip = FINANCIAL_TIPS[Math.floor(Math.random() * FINANCIAL_TIPS.length)];
+      const randomTipText = randomTip.tips[Math.floor(Math.random() * randomTip.tips.length)];
+      return `💡 **نصيحة مالية ذكية - ${randomTip.category}:**\n\n"${randomTipText}"\n\n📚 **المزيد من النصائح حول ${randomTip.category}:**\n${randomTip.tips.filter(tip => tip !== randomTipText).slice(0, 2).map(tip => `• ${tip}`).join('\n')}\n\n🎯 **هل تريد نصائح في موضوع معين؟** قل "نصائح للادخار" أو "نصائح للميزانية"`;
+    }
+    
+    // Default response with developer credit
+    return `🤖 **شكراً لتواصلك معي!**\n\nأنا المساعد المالي الذكي لـ ${APP_INFO.name}، تم تطويري بواسطة **${APP_INFO.developer}**.\n\n**يمكنني مساعدتك في:**\n\n💰 **المصاريف**: "صرفت 50 ريال على طعام"\n📊 **التقارير**: "اعرض ملخص هذا الشهر"\n🧭 **التنقل**: "انتقل إلى قائمة المصاريف"\n💡 **النصائح**: "أعطني نصائح مالية"\n\n**أمثلة أخرى:**\n• "كم صرفت على الطعام؟"\n• "ضع ميزانية 800 ريال للمواصلات"\n• "اعرض القوائم المتاحة"\n\n💬 **ما الذي تريد مساعدة فيه؟**`;
+  }
+  
+  // Add expense to API
+  async addExpenseToAPI(amount, category, description) {
+    const expenseData = {
+      amount: amount,
+      category: category,
+      description: description,
+      date: new Date().toISOString(),
+      currency: 'SAR'
+    };
+    
+    const response = await fetch('/api/expenses', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(expenseData)
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to add expense');
+    }
+    
+    return await response.json();
+  }
+  
+  // Get report data
+  async getReportData(type = 'general') {
+    const response = await fetch('/api/reports');
+    if (!response.ok) {
+      throw new Error('Failed to get report data');
+    }
+    return await response.json();
+  }
+  
+  // Format report response
+  formatReportResponse(data, type) {
+    if (!data) {
+      return `📊 **تقرير مصاريفك**\n\nلا توجد بيانات متاحة حالياً.\n\n🔗 [ابدأ بإضافة مصروف](/add-expense)`;
+    }
+    
+    return `📊 **ملخص مصاريفك:**\n\n💰 **الإجمالي**: ${data.total || 0} ريال\n📈 **هذا الشهر**: ${data.monthly || 0} ريال\n\n🔗 **لمزيد من التفاصيل:**\n• [التقرير الشهري الكامل](/monthly-report)\n• [الإحصائيات التفصيلية](/analytics)`;
   }
 
   // Save conversations to localStorage for persistence
@@ -177,23 +251,26 @@ class AgentSDK {
   // Load conversations from localStorage
   loadConversationsFromStorage() {
     try {
-      const stored = localStorage.getItem('ai_conversations');
-      if (stored) {
-        const conversationsArray = JSON.parse(stored);
-        this.conversations = new Map(conversationsArray);
-        
-        // Set messageId to highest existing message id + 1
-        let maxMessageId = 0;
-        for (const [, conversation] of this.conversations) {
-          if (conversation.messages) {
-            for (const message of conversation.messages) {
-              if (message.id && message.id > maxMessageId) {
-                maxMessageId = message.id;
+      // Check if localStorage is available (client-side only)
+      if (typeof window !== 'undefined' && window.localStorage) {
+        const stored = localStorage.getItem('ai_conversations');
+        if (stored) {
+          const conversationsArray = JSON.parse(stored);
+          this.conversations = new Map(conversationsArray);
+          
+          // Set messageId to highest existing message id + 1
+          let maxMessageId = 0;
+          for (const [, conversation] of this.conversations) {
+            if (conversation.messages) {
+              for (const message of conversation.messages) {
+                if (message.id && message.id > maxMessageId) {
+                  maxMessageId = message.id;
+                }
               }
             }
           }
+          this.messageId = maxMessageId;
         }
-        this.messageId = maxMessageId;
       }
     } catch (error) {
       console.error('Error loading conversations from storage:', error);

@@ -435,8 +435,8 @@ export class PDFGenerator {
             <div>تم إنشاء هذا التقرير في ${new Date().toLocaleDateString('ar-SA')}</div>
             <div class="avatar-credit">
               <span>تطبيق الميزانية الذكية</span>
-              <div class="avatar">AA</div>
-              <span>تصميم Abdullah Alawiss</span>
+              <div class="avatar">RM</div>
+              <span>تطبيق ريال مايند</span>
             </div>
           </div>
         </div>

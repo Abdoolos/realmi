@@ -2,9 +2,10 @@
 import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Button } from "@/components/ui/button";
-import { Copy, Zap, CheckCircle2, AlertCircle, Loader2, ChevronRight, Clock, Sparkles } from 'lucide-react';
+import { Copy, Zap, CheckCircle2, AlertCircle, Loader2, ChevronRight, Clock, Sparkles, ExternalLink } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { useRouter } from 'next/navigation';
 
 const FunctionDisplay = ({ toolCall }) => {
     const [expanded, setExpanded] = useState(false);
@@ -132,14 +133,15 @@ export default function MessageBubble({ message, isThinking = false }) {
                         {isUser ? (
                             <p className="text-sm leading-relaxed">{message.content}</p>
                         ) : (
-                            <ReactMarkdown
-                                className="text-sm prose prose-sm prose-slate max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
-                                components={{
-                                    p: ({ children }) => <p className="my-1 leading-relaxed">{children}</p>,
-                                }}
-                            >
-                                {message.content}
-                            </ReactMarkdown>
+                            <div className="text-sm prose prose-sm prose-slate max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
+                                <ReactMarkdown
+                                    components={{
+                                        p: ({ children }) => <p className="my-1 leading-relaxed">{children}</p>,
+                                    }}
+                                >
+                                    {message.content}
+                                </ReactMarkdown>
+                            </div>
                         )}
                     </div>
                 )}

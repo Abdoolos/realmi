@@ -17,8 +17,8 @@ class LocalStorageDB {
     if (!this.getItem('user')) {
       this.setItem('user', {
         id: 'local_user_1',
-        full_name: 'المستخدم المحلي',
-        email: 'user@local.app',
+        full_name: 'مستخدم',
+        email: 'guest@app.local',
         phone: '',
         preferred_currency: 'SAR',
         family_id: null,
@@ -319,7 +319,38 @@ class FamilySubscription {
 
 class Subcategory {
   static async list() {
-    return [];
+    return db.getItem('subcategories') || [];
+  }
+
+  static async create(subcategoryData) {
+    const subcategories = db.getItem('subcategories') || [];
+    const newSubcategory = {
+      id: db.generateId(),
+      ...subcategoryData,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+    
+    subcategories.push(newSubcategory);
+    db.setItem('subcategories', subcategories);
+    return newSubcategory;
+  }
+
+  static async filter(criteria) {
+    const subcategories = await this.list();
+    return subcategories.filter(subcategory => {
+      for (const [key, value] of Object.entries(criteria)) {
+        if (subcategory[key] !== value) return false;
+      }
+      return true;
+    });
+  }
+
+  static async delete(id) {
+    const subcategories = db.getItem('subcategories') || [];
+    const filteredSubcategories = subcategories.filter(sub => sub.id !== id);
+    db.setItem('subcategories', filteredSubcategories);
+    return true;
   }
 }
 
