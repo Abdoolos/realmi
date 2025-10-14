@@ -9,7 +9,6 @@ import { Wallet, Loader2, ArrowLeft, AlertCircle, CheckCircle } from 'lucide-rea
 import { User } from '../../../src/api/entities';
 import { toast } from 'sonner';
 import { Alert, AlertDescription } from '../../../src/components/ui/alert';
-import Image from 'next/image';
 
 // معلومات العملات
 const currencies = [
@@ -237,29 +236,7 @@ export default function GoogleSignInPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-amber-50 to-emerald-100" dir="rtl">
-      {/* Header with designer info */}
-      <div className="bg-white border-b border-emerald-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-3">
-              <Image
-                src="/myimage1.jpg"
-                alt="Abdullah Alawiss"
-                width={40}
-                height={40}
-                className="rounded-full border-2 border-emerald-200"
-              />
-              <div>
-                <p className="text-sm font-medium text-emerald-800">Abdullah Alawiss</p>
-                <p className="text-xs text-emerald-600">مطور التطبيق</p>
-              </div>
-            </div>
-            <h1 className="text-xl font-bold text-emerald-800">💰 ريال مايند</h1>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex items-center justify-center p-4 min-h-[calc(100vh-64px)]">
+      <div className="flex items-center justify-center p-4 min-h-screen">
         <div className="w-full max-w-md space-y-6">
           
           {/* زر العودة */}

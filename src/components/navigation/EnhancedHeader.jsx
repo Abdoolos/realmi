@@ -1,4 +1,4 @@
-'use client'
+س'use client'
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -58,11 +58,10 @@ const secondaryNavItems = [
   { title: "الخطة", url: createPageUrl("FinancialPlanner"), icon: ClipboardList, emoji: "📊", status: "basic" },
   { 
     title: "المساعد الذكي", 
-    url: "#", 
+    url: createPageUrl("FinancialChatbot"), 
     icon: Sparkles, 
     emoji: "🤖", 
-    status: "disabled",
-    tooltip: "قريباً - المساعد الذكي قيد التطوير"
+    status: "ready"
   }
 ];
 

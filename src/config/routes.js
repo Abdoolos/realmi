@@ -124,7 +124,7 @@ export const PAGE_STATUS = {
   [ROUTES.FAMILY_REPORT]: 'basic',
   [ROUTES.FAMILY_INCOME]: 'basic',
   [ROUTES.FINANCIAL_PLANNER]: 'basic',
-  [ROUTES.FINANCIAL_CHATBOT]: 'disabled', // معطل مؤقتاً
+  [ROUTES.FINANCIAL_CHATBOT]: 'ready', // تم التفعيل
   [ROUTES.CAMERA_RECEIPTS]: 'ready',
   [ROUTES.SETUP_ACCOUNT]: 'ready',
   [ROUTES.ACCOUNT]: 'basic',
