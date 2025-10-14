@@ -5,23 +5,16 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Bot, User as UserIcon, Send, MessageCircle, Sparkles, Plus, BarChart3, Wallet, ArrowRight, Mic } from 'lucide-react';
+import { Bot, User as UserIcon, Send, MessageCircle, Sparkles, Plus, BarChart3, Wallet, ArrowRight, Mic, HelpCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { agentSDK } from '../agents';
 import { User } from '../api/entities';
 import MessageBubble from '../components/ai/MessageBubble';
 import { toast } from 'sonner';
+import { getAllFAQs } from '../agents/knowledgeBase';
 
-// أمثلة للرسائل التي يمكن للمستخدم كتابتها
-const SAMPLE_MESSAGES = [
-  "اشتريت طعام بـ 80 ريال اليوم",
-  "صرفت 25 ريال على قهوة أمس", 
-  "دفعت فاتورة كهرباء 150 ريال",
-  "راتبي هذا الشهر 7500 ريال",
-  "كم صرفت على الطعام هذا الشهر؟",
-  "اعرض لي ملخص مصاريفي",
-  "ضع ميزانية للمواصلات 300 ريال شهرياً"
-];
+// الأسئلة الشائعة السريعة (أول 7 أسئلة)
+const QUICK_FAQS = getAllFAQs().slice(0, 7);
 
 export default function FinancialChatbot() {
   const [currentUser, setCurrentUser] = useState(null);
@@ -51,29 +44,8 @@ export default function FinancialChatbot() {
 
         setConversation(newConversation);
 
-        // رسالة ترحيب من المساعد
-        const welcomeMessage = {
-          role: 'assistant',
-          content: `🌟 **أهلاً وسهلاً ${user.full_name}!**
-
-أنا **المساعد المالي الذكي** 🤖 تم تطويري بواسطة **Abdullah Alawiss** لمساعدتك في:
-
-💰 **تسجيل المصاريف** - مثل: "اشتريت طعام بـ 50 ريال اليوم"
-📊 **عرض التقارير** - مثل: "كم صرفت هذا الشهر؟" 
-💵 **تسجيل الدخل** - مثل: "راتبي 8000 ريال شهرياً"
-🎯 **إدارة الميزانيات** - مثل: "ضع ميزانية للطعام 500 ريال"
-🧭 **التنقل السريع** - مثل: "انتقل إلى قائمة المصاريف"
-
-**يمكنني أيضاً:**
-• شرح كيفية استخدام أي قائمة في التطبيق
-• تقديم نصائح مالية ذكية
-• توجيهك مباشرة للصفحة المطلوبة
-
-**اكتب رسالتك بأي طريقة طبيعية وسأفهمك!** ✨`,
-          timestamp: new Date().toISOString()
-        };
-
-        setMessages([welcomeMessage]);
+        // بدء بدون رسائل (نافذة فارغة)
+        setMessages([]);
 
       } catch (error) {
         console.error("Error initializing chat:", error);
@@ -187,22 +159,22 @@ export default function FinancialChatbot() {
           <Card className="rtl-shadow bg-white/90 backdrop-blur-sm border-emerald-100">
             <CardHeader className="pb-3">
               <CardTitle className="text-emerald-800 text-sm flex items-center gap-2">
-                <MessageCircle className="w-4 h-4" />
-                أمثلة سريعة
+                <HelpCircle className="w-4 h-4" />
+                أسئلة سريعة
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              {SAMPLE_MESSAGES.map((sample, index) => (
+              {QUICK_FAQS.map((faq) => (
                 <motion.button
-                  key={index}
+                  key={faq.id}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  onClick={() => handleSampleMessage(sample)}
+                  onClick={() => handleSampleMessage(faq.question)}
                   className="w-full text-right p-3 rounded-lg bg-emerald-50 hover:bg-emerald-100 transition-colors border border-emerald-200 text-sm text-emerald-700"
                 >
                   <div className="flex items-center gap-2">
-                    <ArrowRight className="w-3 h-3 flex-shrink-0" />
-                    <span>{sample}</span>
+                    <span className="text-lg">{faq.categoryIcon}</span>
+                    <span className="flex-1 line-clamp-2">{faq.question}</span>
                   </div>
                 </motion.button>
               ))}

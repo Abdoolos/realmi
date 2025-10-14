@@ -19,6 +19,7 @@ import UserDataInitializer from '@/components/user/UserDataInitializer';
 import SubscriptionBanner from '@/components/SubscriptionBanner';
 import ErrorBoundary from '@/components/utils/errorBoundary';
 import { getEnvironmentInfo } from '@/components/utils/envUtils';
+import AuthProvider from '@/../../components/AuthProvider';
 
 // Import styles
 import '../src/index.css';
@@ -628,7 +629,9 @@ export default function RootLayout({ children }) {
     <html lang="ar" dir="rtl">
       <body>
         <ErrorBoundary>
-          <LayoutContent>{children}</LayoutContent>
+          <AuthProvider>
+            <LayoutContent>{children}</LayoutContent>
+          </AuthProvider>
         </ErrorBoundary>
       </body>
     </html>

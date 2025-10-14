@@ -64,11 +64,10 @@ class AgentSDK {
       // Notify subscribers
       this.notifySubscribers(conversation.id, conv);
       
-      // If it's a user message, simulate an AI response
+      // If it's a user message, generate AI response
       if (message.role === 'user') {
-        setTimeout(() => {
-          this.generateAIResponse(conversation, message.content);
-        }, 1000 + Math.random() * 2000); // Random delay between 1-3 seconds
+        // Check if it's a FAQ question - respond immediately
+        this.checkAndRespond(conversation, message.content);
       }
     }
 
@@ -109,13 +108,19 @@ class AgentSDK {
     }
   }
 
+  // Check message type and respond immediately
+  async checkAndRespond(conversation, userMessage) {
+    // Respond immediately without any delay
+    await this.generateAIResponse(conversation, userMessage);
+  }
+
   // Generate AI response (mock implementation)
   async generateAIResponse(conversation, userMessage) {
     const conv = this.conversations.get(conversation.id);
     if (!conv) return;
 
     // Simple response generation based on keywords
-    let response = this.generateResponseBasedOnMessage(userMessage);
+    let response = await this.generateResponseBasedOnMessage(userMessage);
 
     const aiMessage = {
       id: ++this.messageId,
@@ -127,17 +132,97 @@ class AgentSDK {
     conv.messages.push(aiMessage);
     conv.updated_date = new Date().toISOString();
     
+    // Force immediate update
     this.saveConversationsToStorage();
-    this.notifySubscribers(conversation.id, conv);
+    
+    // Notify subscribers immediately with a fresh copy
+    this.notifySubscribers(conversation.id, { ...conv, messages: [...conv.messages] });
+    
+    // Force another notification to ensure UI updates
+    setTimeout(() => {
+      this.notifySubscribers(conversation.id, { ...conv, messages: [...conv.messages] });
+    }, 10);
   }
 
   // Generate response based on user message content using enhanced knowledge base
   async generateResponseBasedOnMessage(message) {
     // Import knowledge base dynamically
-    const { analyzeIntent, getPageInfo, MENU_INFO, API_ROUTES, APP_INFO, FINANCIAL_TIPS } = await import('./knowledgeBase.js');
+    const { 
+      analyzeIntent, 
+      getPageInfo, 
+      MENU_INFO, 
+      API_ROUTES, 
+      APP_INFO, 
+      FINANCIAL_TIPS,
+      getAllFAQs,
+      getFAQsByCategory,
+      getFAQCategories,
+      searchFAQs
+    } = await import('./knowledgeBase.js');
     
     const lowerMessage = message.toLowerCase();
     const intent = analyzeIntent(message);
+    
+    // Handle FAQ requests first
+    if (lowerMessage.includes('أسئلة') || lowerMessage.includes('سؤال') || lowerMessage.includes('استفسار') || lowerMessage.includes('faq')) {
+      const categories = getFAQCategories();
+      return `❓ **الأسئلة الشائعة - FAQ**\n\n**الفئات المتوفرة:**\n\n${categories.map(cat => 
+        `${cat.icon} **${cat.name}** (${cat.count} أسئلة)`
+      ).join('\n')}\n\n💡 **للبحث عن سؤال محدد:**\n• قل "ابحث عن [كلمة البحث]"\n• أو اسأل سؤالك مباشرة\n\n**أمثلة:**\n• "هل التطبيق مجاني؟"\n• "كيف أستخدم التطبيق؟"\n• "هل بياناتي آمنة؟"`;
+    }
+    
+    // First: Try exact match with FAQ questions
+    const allFAQs = getAllFAQs();
+    const exactMatch = allFAQs.find(faq => 
+      faq.question.trim() === message.trim() ||
+      faq.question.toLowerCase().trim() === lowerMessage.trim()
+    );
+    
+    if (exactMatch) {
+      let response = `${exactMatch.categoryIcon} **${exactMatch.question}**\n\n${exactMatch.answer}`;
+      
+      // Find similar questions in the same category
+      const similarInCategory = allFAQs.filter(faq => 
+        faq.category === exactMatch.category && faq.id !== exactMatch.id
+      ).slice(0, 2);
+      
+      if (similarInCategory.length > 0) {
+        response += `\n\n**أسئلة أخرى في نفس الفئة:**\n${similarInCategory.map(faq => 
+          `• ${faq.question}`
+        ).join('\n')}`;
+      }
+      
+      return response;
+    }
+    
+    // Second: Search in FAQs if the message looks like a question
+    if (lowerMessage.includes('هل') || lowerMessage.includes('كيف') || lowerMessage.includes('ماذا') || 
+        lowerMessage.includes('وش') || lowerMessage.includes('ايش') || lowerMessage.includes('؟')) {
+      const searchResults = searchFAQs(message);
+      if (searchResults.length > 0) {
+        const topResult = searchResults[0];
+        let response = `${topResult.categoryIcon} **${topResult.question}**\n\n${topResult.answer}`;
+        
+        if (searchResults.length > 1) {
+          response += `\n\n**أسئلة مشابهة:**\n${searchResults.slice(1, 3).map(faq => 
+            `• ${faq.question}`
+          ).join('\n')}`;
+        }
+        
+        return response;
+      }
+    }
+    
+    // Handle category-specific FAQ requests
+    const categories = getFAQCategories();
+    for (const cat of categories) {
+      if (lowerMessage.includes(cat.name.toLowerCase())) {
+        const categoryFAQs = getFAQsByCategory(cat.name);
+        return `${cat.icon} **${cat.name}** (${cat.count} أسئلة)\n\n${categoryFAQs.map(faq => 
+          `**س${faq.id}: ${faq.question}**\n${faq.answer}\n`
+        ).join('\n---\n\n')}`;
+      }
+    }
     
     // Handle navigation requests
     if (intent.intent === 'navigate' && intent.target) {
@@ -174,7 +259,7 @@ class AgentSDK {
     
     // Handle general app information requests
     if (lowerMessage.includes('مساعدة') || lowerMessage.includes('أهلا') || lowerMessage.includes('مرحبا') || lowerMessage.includes('help')) {
-      return `🌟 **أهلاً وسهلاً في ${APP_INFO.name}!**\n\n🤖 أنا المساعد الذكي، طورني **${APP_INFO.developer}** لمساعدتك في إدارة أموالك.\n\n**يمكنني مساعدتك في:**\n\n💰 **إضافة المصاريف**: "صرفت 50 ريال طعام"\n📊 **عرض التقارير**: "كم صرفت هذا الشهر؟"\n🎯 **إدارة الميزانيات**: "ضع ميزانية للطعام 500 ريال"\n🧭 **التنقل**: "انتقل إلى قائمة المصاريف"\n💡 **النصائح المالية**: "أعطني نصائح للادخار"\n\n**القوائم المتاحة:**\n${Object.values(MENU_INFO).slice(0, 5).map(info => `• ${info.title}`).join('\n')}\n\n💬 **جرب قول:** "اعرض القوائم المتاحة" لرؤية جميع الوظائف`;
+      return `🌟 **أهلاً وسهلاً في ${APP_INFO.name}!**\n\n🤖 أنا المساعد الذكي لمساعدتك في إدارة أموالك.\n\n**يمكنني مساعدتك في:**\n\n💰 **إضافة المصاريف**: "صرفت 50 ريال طعام"\n📊 **عرض التقارير**: "كم صرفت هذا الشهر؟"\n🎯 **إدارة الميزانيات**: "ضع ميزانية للطعام 500 ريال"\n🧭 **التنقل**: "انتقل إلى قائمة المصاريف"\n💡 **النصائح المالية**: "أعطني نصائح للادخار"\n\n**القوائم المتاحة:**\n${Object.values(MENU_INFO).slice(0, 5).map(info => `• ${info.title}`).join('\n')}\n\n💬 **جرب قول:** "اعرض القوائم المتاحة" لرؤية جميع الوظائف`;
     }
     
     // Handle menu listing
@@ -192,7 +277,7 @@ class AgentSDK {
     }
     
     // Default response with developer credit
-    return `🤖 **شكراً لتواصلك معي!**\n\nأنا المساعد المالي الذكي لـ ${APP_INFO.name}، تم تطويري بواسطة **${APP_INFO.developer}**.\n\n**يمكنني مساعدتك في:**\n\n💰 **المصاريف**: "صرفت 50 ريال على طعام"\n📊 **التقارير**: "اعرض ملخص هذا الشهر"\n🧭 **التنقل**: "انتقل إلى قائمة المصاريف"\n💡 **النصائح**: "أعطني نصائح مالية"\n\n**أمثلة أخرى:**\n• "كم صرفت على الطعام؟"\n• "ضع ميزانية 800 ريال للمواصلات"\n• "اعرض القوائم المتاحة"\n\n💬 **ما الذي تريد مساعدة فيه؟**`;
+    return `🤖 **شكراً لتواصلك معي!**\n\nأنا المساعد المالي الذكي لـ ${APP_INFO.name}.\n\n**يمكنني مساعدتك في:**\n\n💰 **المصاريف**: "صرفت 50 ريال على طعام"\n📊 **التقارير**: "اعرض ملخص هذا الشهر"\n🧭 **التنقل**: "انتقل إلى قائمة المصاريف"\n💡 **النصائح**: "أعطني نصائح مالية"\n\n**أمثلة أخرى:**\n• "كم صرفت على الطعام؟"\n• "ضع ميزانية 800 ريال للمواصلات"\n• "اعرض القوائم المتاحة"\n\n💬 **ما الذي تريد مساعدة فيه؟**`;
   }
   
   // Add expense to API

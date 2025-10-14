@@ -12,17 +12,17 @@ function AuthGuard({ children }) {
 
   useEffect(() => {
     // قائمة الصفحات التي لا تحتاج مصادقة
-    const publicPages = ['/auth/signin', '/auth/error', '/'];
+    const publicPages = ['/auth/signin', '/auth/error', '/', '/setup-account'];
     
     if (status === "loading") return; // لا نفعل شيء أثناء التحميل
     
     if (!session && !publicPages.includes(pathname)) {
-      router.push('/auth/signin');
+      router.push('/setup-account');
     }
   }, [session, status, router, pathname]);
 
   // إذا كانت الصفحة عامة أو المستخدم مسجل دخول، اعرض المحتوى
-  const publicPages = ['/auth/signin', '/auth/error', '/'];
+  const publicPages = ['/auth/signin', '/auth/error', '/', '/setup-account'];
   if (publicPages.includes(pathname) || session) {
     return children;
   }

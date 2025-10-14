@@ -554,28 +554,6 @@ export default function AddExpense() {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-amber-50 to-emerald-100" dir="rtl">
-            {/* Header with designer info */}
-            <div className="bg-white border-b border-emerald-200 shadow-sm">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex items-center justify-between h-16">
-                        <div className="flex items-center gap-3">
-                            <Image
-                                src="/myimage1.jpg"
-                                alt="Abdullah Alawiss"
-                                width={40}
-                                height={40}
-                                className="rounded-full border-2 border-emerald-200"
-                            />
-                            <div>
-                                <p className="text-sm font-medium text-emerald-800">Abdullah Alawiss</p>
-                                <p className="text-xs text-emerald-600">مطور التطبيق</p>
-                            </div>
-                        </div>
-                        <h1 className="text-xl font-bold text-emerald-800">💰 ريال مايند</h1>
-                    </div>
-                </div>
-            </div>
-
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <motion.div
                     initial={{ opacity: 0, y: -20 }}
