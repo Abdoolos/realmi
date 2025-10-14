@@ -9,6 +9,11 @@ const nextConfig = {
   reactStrictMode: true,
   transpilePackages: [],
   
+  // Disable ESLint during build (using Biome instead)
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  
   // Set output file tracing root to silence Next.js workspace warning
   outputFileTracingRoot: __dirname,
   
